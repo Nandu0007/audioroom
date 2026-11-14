@@ -792,6 +792,8 @@ class _CreateEnhancedRoomScreenState extends State<CreateEnhancedRoomScreen>
       await RoomService.createRoom(
         roomName: room.name,
         description: room.description,
+        isPrivate: room.isPasswordProtected ||
+            room.type.toString().split('.').last == 'private',
       );
     } catch (error) {
       Get.snackbar('Could not create room', error.toString());
