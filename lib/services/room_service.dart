@@ -9,7 +9,7 @@ class RoomService {
 
   static String get _userId {
     final user = _db.auth.currentUser;
-    if (user == null) throw const AuthException('Please sign in first.');
+    if (user == null) throw AuthException('Please sign in first.');
     return user.id;
   }
 
@@ -72,7 +72,7 @@ class RoomService {
         .maybeSingle();
 
     if (room == null) {
-      throw const PostgrestException(message: 'This room is no longer available.');
+      throw PostgrestException(message: 'This room is no longer available.');
     }
 
     await _db.from('room_members').upsert(
