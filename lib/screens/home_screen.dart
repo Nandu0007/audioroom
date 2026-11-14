@@ -154,15 +154,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   } catch (error) {
                     Get.snackbar('Could not join room', error.toString());
                   }
-                  
-                  Get.snackbar(
-                    "⚡ ROOM ENTERED",
-                    "Welcome to '${room["name"]}' ninja!",
-                    backgroundColor: Colors.green.withOpacity(0.8),
-                    colorText: Colors.white,
-                    icon: Icon(Icons.flash_on, color: Colors.white),
-                    duration: Duration(seconds: 2),
-                  );
                 },
                 child: ListTile(
                   leading: NinjaPulseEffect(
@@ -347,6 +338,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         Get.snackbar('Thank you!', 'Your feedback has been sent.', backgroundColor: Colors.green, colorText: Colors.white);
                       },
                     );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.redAccent),
+                  title: Text('Sign out', style: GoogleFonts.orbitron(color: Colors.white)),
+                  onTap: () async {
+                    Get.back();
+                    await Supabase.instance.client.auth.signOut();
                   },
                 ),
               ],
