@@ -45,7 +45,6 @@ dependencies:
   get: ^4.6.5
   livekit_client: ^1.2.1
   http: ^0.13.5
-  dart_jsonwebtoken: ^2.7.1
   google_fonts: ^4.0.3
   # Audio processing and effects
   flutter_sound: ^9.2.13
