@@ -60,14 +60,14 @@ audioroom/
 
 ### Supabase setup
 
-This repository is configured to use the Supabase project URL and publishable client key in `lib/config/supabase_config.dart`. The publishable key is safe for client apps; access must be restricted with Row Level Security (RLS). User profiles and wallets are created by the existing `handle_new_auth_user` database trigger.
+This repository is configured to use the Supabase project URL and client anon key in `lib/config/supabase_config.dart`. This key is intended for client apps; access must be restricted with Row Level Security (RLS). User profiles and wallets are created by the existing `handle_new_auth_user` database trigger.
 
 ### Prerequisites
 - Flutter SDK (≥3.16.0)
 - Dart SDK (≥2.18.6)
 - Android Studio / VS Code
 - iOS Simulator / Android Emulator
-- Firebase Project Setup
+- Supabase project (already configured in `lib/config/supabase_config.dart`)
 
 ### Installation
 
@@ -82,23 +82,17 @@ This repository is configured to use the Supabase project URL and publishable cl
    flutter pub get
    ```
 
-3. **Configure Firebase**
-   - Create a new Firebase project
-   - Add your `google-services.json` (Android) and `GoogleService-Info.plist` (iOS)
-   - Enable Authentication and Firestore
+3. **Configure Supabase**
+   - Enable Email authentication in Supabase Auth.
+   - Keep Row Level Security enabled on all public tables.
+   - The app uses the existing profile-creation trigger and `rooms` / `room_members` tables.
 
-4. **Set up API Keys**
-   ```bash
-   # Create .env file
-   GOOGLE_TRANSLATE_API_KEY=your_translation_api_key
-   LIVEKIT_API_KEY=your_livekit_api_key
-   LIVEKIT_SECRET_KEY=your_livekit_secret
-   ```
-
-5. **Run the application**
+4. **Run the application**
    ```bash
    flutter run
    ```
+
+LiveKit voice tokens must be issued by a server-side Edge Function. Do not add the LiveKit API secret to Flutter or commit it to Git.
 
 ## 🎮 Gamification System
 
