@@ -48,7 +48,7 @@ audioroom/
 | **Framework** | Flutter 3.16.0 |
 | **State Management** | GetX |
 | **Real-time Audio** | LiveKit |
-| **Backend Services** | Firebase (Auth, Firestore) |
+| **Backend Services** | Supabase (Auth, Postgres, Realtime, Storage) |
 | **Audio Processing** | Flutter Sound |
 | **UI Components** | Material Design 3 |
 | **Fonts** | Google Fonts (Orbitron, Rajdhani) |
@@ -57,6 +57,10 @@ audioroom/
 | **Storage** | SharedPreferences |
 
 ## 🚀 Quick Start
+
+### Supabase setup
+
+This repository is configured to use the Supabase project URL and publishable client key in `lib/config/supabase_config.dart`. The publishable key is safe for client apps; access must be restricted with Row Level Security (RLS). User profiles and wallets are created by the existing `handle_new_auth_user` database trigger.
 
 ### Prerequisites
 - Flutter SDK (≥3.16.0)
