@@ -1,79 +1,80 @@
 import 'package:audioroom/widgets/participant_block.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/participant.dart';
 
 class ParticipantsContainer extends StatelessWidget {
-
-  late final String roomName;
   ParticipantsContainer(this.roomName);
 
-  final db = FirebaseFirestore.instance;
+  final String roomName;
+  final SupabaseClient _db = Supabase.instance.client;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(10),
-      height: MediaQuery.of(context).size.height / 1.5,
-      child: StreamBuilder(
-          stream: db
-              .collection('rooms')
-              .doc(roomName)
-              .collection('participants')
-              .snapshots(),
-          builder: (ctx, participantSnapshot) {
-            if (participantSnapshot.hasError) {
-              return const Text('Firestore Connection error');
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: _db.from('rooms').select('id').eq('title', roomName).limit(1).maybeSingle(),
+      builder: (context, roomSnapshot) {
+        if (roomSnapshot.connectionState != ConnectionState.done) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final room = roomSnapshot.data;
+        if (room == null) return const Center(child: Text('Room not found'));
+        return StreamBuilder<List<Map<String, dynamic>>>(
+          stream: _db.from('room_members')
+              .stream(primaryKey: ['room_id', 'user_id'])
+              .eq('room_id', room['id']),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return const Center(child: Text('Could not load participants'));
             }
-
-            var totalParticipants = 0;
-            List<DocumentSnapshot> participants;
-
-            if (!participantSnapshot.hasData) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            } else {
-              participants = participantSnapshot.data!.docs;
-              totalParticipants = participants.length;
-              return GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 20.0,
-                  mainAxisSpacing: 20.0,
-                  childAspectRatio: 2.5/3,
-                ),
-                itemCount: totalParticipants,
-                itemBuilder: ((context, index) {
-                  var participant = participants[index];
-                  return FutureBuilder(
-                      future: db
-                          .collection('users')
-                          .doc(participant['email'])
-                          .get(),
-                      builder: (ctx, userSnapshot) {
-                        if (!userSnapshot.hasData) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        } else {
-                          Participant participantObj = Participant(
-                              email: participant["email"],
-                              name: userSnapshot.data!["name"],
-                              dpUrl: userSnapshot.data!["dpUrl"],
-                              isAdmin: participant["isAdmin"],
-                              isMicOn: participant["isMicOn"],
-                              isModerator: participant["isModerator"],
-                              isSpeaker: participant["isSpeaker"],
-                              isSpeaking: participant["isSpeaking"]);
-                          return ParticipantBlock(participant: participantObj);
-                        }
-                      });
-                }),
-              );
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
             }
-          }),
+            final members = snapshot.data!;
+            return GridView.builder(
+              padding: const EdgeInsets.all(10),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+                childAspectRatio: 2.5 / 3,
+              ),
+              itemCount: members.length,
+              itemBuilder: (context, index) {
+                final member = members[index];
+                return FutureBuilder<Map<String, dynamic>?>(
+                  future: _db.from('profiles')
+                      .select('display_name,avatar_url')
+                      .eq('id', member['user_id'])
+                      .maybeSingle(),
+                  builder: (context, profileSnapshot) {
+                    final profile = profileSnapshot.data ?? {};
+                    final role = member['role'] as String? ?? 'member';
+                    final userId = member['user_id'] as String;
+                    final displayName = profile['display_name'] as String?;
+                    final avatarUrl = profile['avatar_url'] as String?;
+                    final participant = Participant(
+                      email: userId,
+                      name: displayName != null && displayName.isNotEmpty
+                          ? displayName
+                          : 'User ${userId.substring(0, 6)}',
+                      dpUrl: avatarUrl ??
+                          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
+                      isAdmin: role == 'owner' || role == 'admin',
+                      isMicOn: false,
+                      isModerator: role == 'admin',
+                      isSpeaker: true,
+                      isSpeaking: false,
+                    );
+                    return ParticipantBlock(participant: participant);
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }
