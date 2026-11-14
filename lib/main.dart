@@ -167,7 +167,7 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        cardTheme: CardThemeData(
+        cardTheme: CardTheme(
           color: Color(0xFF111111),
           elevation: 8,
           shadowColor: Colors.white.withOpacity(0.1),
