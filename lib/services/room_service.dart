@@ -16,6 +16,7 @@ class RoomService {
   static Future createRoom({
     required String roomName,
     required String description,
+    bool isPrivate = false,
   }) async {
     final room = await _db
         .from('rooms')
@@ -23,7 +24,7 @@ class RoomService {
           'owner_id': _userId,
           'title': roomName.trim(),
           'description': description.trim(),
-          'room_type': 'public',
+          'room_type': isPrivate ? 'private' : 'public',
           'status': 'active',
         })
         .select('id, title, description')
