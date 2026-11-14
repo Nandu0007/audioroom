@@ -277,7 +277,7 @@ class VoiceEffectsService {
       double sample = samples[i].toDouble();
       
       // Add chorus effect with sine wave modulation
-      double modulation = 0.1 * math.sin(2 * Math.pi * i / 1000) * _effectIntensity;
+      double modulation = 0.1 * math.sin(2 * math.pi * i / 1000) * _effectIntensity;
       int delayedIndex = (i - (100 + modulation * 50)).round();
       
       if (delayedIndex >= 0 && delayedIndex < samples.length) {
